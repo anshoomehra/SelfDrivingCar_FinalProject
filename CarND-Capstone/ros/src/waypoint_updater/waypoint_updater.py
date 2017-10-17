@@ -23,7 +23,7 @@ TODO (for Yousuf and Aaron): Stopline location for each traffic light.
 '''
 
 LOOKAHEAD_WPS = 200 # Number of waypoints we will publish. You can change this number
-
+DEBUG = False
 
 class WaypointUpdater(object):
     def __init__(self):
@@ -57,7 +57,7 @@ class WaypointUpdater(object):
 
         # Velocity Placeholders
         self.current_velocity = None
-        self.max_velocity = 10 # m/s
+        self.max_velocity = 10./2.23693 # m/s
         
         # Loop until interrupt is issued as closing simulator or Ctrl+C as examples
         rospy.spin()
@@ -120,7 +120,8 @@ class WaypointUpdater(object):
 
         # Waypoints, and velocities are set, time to Publish waypoints 
         # to /final_waypoints node ..
-        rospy.loginfo("Publishing next waypoints to final_waypoints")
+        if DEBUG :
+            rospy.loginfo("Publishing next waypoints to final_waypoints")
         
         lane = Lane()
         lane.waypoints = wps_with_velocity
@@ -131,14 +132,16 @@ class WaypointUpdater(object):
     # Compute Final Waypoints, and publish them to /final_waypoints node
     def pose_cb(self, PoseStampedMsg):
         
-        rospy.loginfo("In Pose CB...")
+        if DEBUG :
+            rospy.loginfo("In Pose CB...")
         # TODO: Implement
 
         self.current_pose = PoseStampedMsg.pose
         #Log Message Later ...
-        rospy.loginfo("Current Pose {} , {}, {}".format(self.current_pose.position.x,
-                                                        self.current_pose.position.y, 
-                                                        self.current_pose.position.z))
+        if DEBUG :
+            rospy.loginfo("Current Pose {} , {}, {}".format(self.current_pose.position.x,
+                                                            self.current_pose.position.y, 
+                                                            self.current_pose.position.z))
 
         # Publish final waypoints ..
         ## Wait until base_waypoits are published, call backs are not in sequence &
@@ -162,7 +165,8 @@ class WaypointUpdater(object):
         self.base_waypoints = LaneMsg.waypoints
         self.number_of_base_waypoints = len(LaneMsg.waypoints)
 
-        rospy.loginfo("In Waypoints CB, total number of waypoints {}...".format(self.number_of_base_waypoints))
+        if DEBUG :
+            rospy.loginfo("In Waypoints CB, total number of waypoints {}...".format(self.number_of_base_waypoints))
 
         # Publish final waypoints ..
         ## Wait until base_waypoits are published, call backs are not in sequence &
