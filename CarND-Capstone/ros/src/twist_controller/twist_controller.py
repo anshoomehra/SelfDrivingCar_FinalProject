@@ -23,10 +23,15 @@ class Controller(object):
 		#self.throttle_pid = PID(kp=0.05, ki=0.015, kd=0.15, mn=kwargs['decel_limit'], mx=kwargs['accel_limit'])
 		
 		## Compute rate of change for throttle using PID
-		self.throttle_pid = PID(kp=0.185, ki=0.0005, kd=3.52, mn=kwargs['decel_limit'], mx=kwargs['accel_limit'])
+		self.throttle_pid = PID(kp=0.2, ki=0.0003, kd=3.0, mn=kwargs['decel_limit'], mx=kwargs['accel_limit'])
 
 		## Minimum Speed placeholder 
 		self.min_speed = kwargs['min_speed']
+
+		## Placeholders for effective breaking .. 
+		self.wheel_base = kwargs['wheel_base']
+		self.total_mass = kwargs['vehicle_mass'] # Plus Other compluted mass like fuel
+												 # And even how air pressure would effect mass distrubution
 
 		## Time Logging Placeholder 
 		self.prev_time = None
@@ -39,7 +44,7 @@ class Controller(object):
 	def control(self, *args, **kwargs):
 
 		# Retrieve present throttle, brake, steer
-		target_velocity_linear_x = args[0]
+		target_velocity_linear_x = abs(args[0])
 		target_velocity_angular_z = args[1]
 		current_velocity_linear_x = args[2]
 		current_velocity_angular_z = args[3]
@@ -48,7 +53,7 @@ class Controller(object):
 		throttle = 0.0
 		brake = 0.0
 
-		## If DBW is interrupted, reset throttle to avoid errors .. 
+		## If DBW is interrupted, reset throttle to avoid errors & return .. 
 		if not dbw_enabled:
 			self.throttle.reset()
 			return 0, 0, 0
@@ -71,10 +76,13 @@ class Controller(object):
 			velocity_controller = self.throttle_pid.step(diff_velocity, dt)
 		if velocity_controller > 0:
 			throttle = velocity_controller
-			if throttle > 0.7 :
-				throttle = 0.7
+			# if throttle > 0.7 :  #### Needed for slow machines .. 
+			# 	throttle = 0.7
 		elif velocity_controller < 0:
-			brake = -velocity_controller
+			# So braking should be ideaaly dependent in vehcile mass, air pressure ..
+			# wheel base etc, we are keeping it simple, as we do not have all the data ..
+			# Example : abs(self.total_mass * velocity_controller * self.wheel_base)
+			brake = -velocity_controller/2 # reducing braking to half, just my system ..
 
 		# Define yaw from yaw conrtoller, given target and present linear, angular velocities ..
 		steering = self.yaw_controller.get_steering(target_velocity_linear_x, target_velocity_angular_z, current_velocity_linear_x)

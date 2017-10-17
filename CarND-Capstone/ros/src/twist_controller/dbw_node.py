@@ -73,7 +73,8 @@ class DBWNode(object):
 		self.controller = Controller(wheel_base = wheel_base, steer_ratio = steer_ratio,
 									 min_speed = 0.0, max_lat_accel = max_lat_accel,
 									 max_steer_angle = max_steer_angle, 
-									 decel_limit = decel_limit, 
+									 decel_limit = decel_limit,
+									 vehicle_mass = vehicle_mass, 
 									 accel_limit = accel_limit)
 
 		# Loop Node until interrupt ..
@@ -81,7 +82,7 @@ class DBWNode(object):
 
 	def loop(self):
 		# Rate at which loop is circled back .. 
-		rate = rospy.Rate(5) # 50Hz
+		rate = rospy.Rate(50) # 50Hz
 		
 		# Until interrupt ..
 		while not rospy.is_shutdown():

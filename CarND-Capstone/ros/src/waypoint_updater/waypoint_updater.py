@@ -51,10 +51,6 @@ class WaypointUpdater(object):
         self.car_x = None
         self.car_y = None
 
-        # Minimum Distance Placeholders
-        self.min_dist_from_car = 99999
-        self.min_dist_from_car_idx = None
-
         # Velocity Placeholders
         self.current_velocity = None
         self.max_velocity = 10./2.23693 # m/s
@@ -78,6 +74,10 @@ class WaypointUpdater(object):
         car_x = self.current_pose.position.x
         car_y = self.current_pose.position.y
 
+        # Minimum Distance Placeholders
+        self.min_dist_from_car = 99999
+        self.min_dist_from_car_idx = None
+
         # Local Placeholders 
         wp_start_idx = 0 # Index to compute waypoints from base list
         wp_end_idx = self.number_of_base_waypoints # Index until computing waypoints from base list 
@@ -87,8 +87,8 @@ class WaypointUpdater(object):
         # 20 after or number of total waypoints whichever is less .. 
         # instead of looping all waypoints to gain performance .. 
         if (self.min_dist_from_car_idx is not None):
-            wp_start_idx = self.min_dist_from_car_idx - 20
-            wp_end_idx = min( self.number_of_base_waypoints , self.min_dist_from_car_idx+20 )
+            wp_start_idx = self.min_dist_from_car_idx - 100
+            wp_end_idx = min( self.number_of_base_waypoints , self.min_dist_from_car_idx+100 )
 
         # Find minimum distance car and it's index
         for idx in range(wp_start_idx, wp_end_idx):
@@ -104,28 +104,27 @@ class WaypointUpdater(object):
                 self.min_dist_from_car = distance
                 self.min_dist_from_car_idx = idx
 
-        # Closest waypoint position ...
-        closest_wp_pos = self.base_waypoints[self.min_dist_from_car_idx].pose.pose.position
+        # Closest waypoint position ... For Logging ..
+        #closest_wp_pos = self.base_waypoints[self.min_dist_from_car_idx].pose.pose.position
+
+        lane = Lane()
 
         # Filter the waypoints which are ahead of the car
         # Caution: Since it is loop, waypoints are cyclic,
-        #          hence using iterartor functions, cycle()
-        #          & islice() to get elements from start of
-        #          the index when list ends..
-        wps_ahead = list(islice(cycle(self.base_waypoints), self.min_dist_from_car_idx, self.min_dist_from_car_idx + LOOKAHEAD_WPS))
-
-        # Now since we have waypoints, update the target velocity for
-        # each waypoint ..
-        wps_with_velocity = self.update_waypoints_velocity(wps_ahead)
-
+        #          ensure loop s index back ..
+        for idx in range(self.min_dist_from_car_idx, self.min_dist_from_car_idx+LOOKAHEAD_WPS):
+            # Ensure index is not out range and is cyclic
+            idx = idx % self.number_of_base_waypoints
+            # Update the target velocity along ..
+            self.set_waypoint_velocity(self.base_waypoints, idx , 10./2.23693)
+            # Add to the list of final waypoints 
+            lane.waypoints.append(self.base_waypoints[idx])
+ 
         # Waypoints, and velocities are set, time to Publish waypoints 
         # to /final_waypoints node ..
         if DEBUG :
             rospy.loginfo("Publishing next waypoints to final_waypoints")
-        
-        lane = Lane()
-        lane.waypoints = wps_with_velocity
-        lane.header.stamp = rospy.Time(0)
+
         self.final_waypoints_pub.publish(lane)
 
     # Call Back Method for /current_pose:
@@ -149,16 +148,12 @@ class WaypointUpdater(object):
         if self.base_waypoints is not None: 
             self.send_final_waypoints()
  
-
     # Call Back Method for /base_waypoints:
     # Compute Final Waypoints, and publish them to /final_waypoints node
     def waypoints_cb(self, LaneMsg):
 
-        rospy.loginfo("In Waypoints CB...")
-        # TODO: Implement
-        
-        #Generate Waypoints (only ahead waypoints) based on present state
-        #final_waypoints = self.generate_final_waypoints()
+        if DEBUG :
+            rospy.loginfo("In Waypoints CB...")
 
         # Log Message Later ...
         #print ("Current Velocity:", waypoints.twist.twist.linear.x, waypoints.twist.twist.linear.y, waypoints.twist.twist.linear.z)
