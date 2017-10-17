@@ -23,7 +23,7 @@ class Controller(object):
 		#self.throttle_pid = PID(kp=0.05, ki=0.015, kd=0.15, mn=kwargs['decel_limit'], mx=kwargs['accel_limit'])
 		
 		## Compute rate of change for throttle using PID
-		self.throttle_pid = PID(kp=0.20, ki=0.0003, kd=3.5, mn=kwargs['decel_limit'], mx=kwargs['accel_limit'])
+		self.throttle_pid = PID(kp=0.185, ki=0.0005, kd=3.52, mn=kwargs['decel_limit'], mx=kwargs['accel_limit'])
 
 		## Minimum Speed placeholder 
 		self.min_speed = kwargs['min_speed']
@@ -32,6 +32,7 @@ class Controller(object):
 		self.prev_time = None
 
 		### Apply low pass filter 
+		#self.s_lpf = LowPassFilter(tau = .2, ts = .1)
 		self.s_lpf = LowPassFilter(tau = 3, ts = 1)
 
 	# control method: for any preprocessing of throttle, brake, yaw
@@ -70,6 +71,8 @@ class Controller(object):
 			velocity_controller = self.throttle_pid.step(diff_velocity, dt)
 		if velocity_controller > 0:
 			throttle = velocity_controller
+			if throttle > 0.7 :
+				throttle = 0.7
 		elif velocity_controller < 0:
 			brake = -velocity_controller
 
