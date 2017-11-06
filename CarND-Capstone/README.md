@@ -1,17 +1,15 @@
 # Team PEGASUS : Self-Driving Car Nanodegree Capstone Project
 
 ## Team
-## Anshoo Mehra
+#### Anshoo Mehra
 https://www.linkedin.com/in/anshoomehra
 Contributions: Waypoint Publisher, Traffic Light Detection, Twist Controller, Traffic Light Detection using Google Object Detection API 
 
-## Sumit Chhabra
+#### Sumit Chhabra
 https://www.linkedin.com/in/sumit-chhabra-577a568
 Contributions: Waypoint Publisher, Traffic Light Detection, Twist Controller, Traffic Light Detection using Google Object Detection API, ROS Performance Tuning
 
-## Xinghou Liu
-## Korhan Mutludoğan
-## Jerry Hu
+#### Xinghou Liu, Korhan Mutludoğan, Jerry Hu
 
 # Objective 
 Capstone project is the final project of Udacity Self-Driving Nanodegree. 
