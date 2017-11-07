@@ -68,7 +68,7 @@ TL Detector, only publishes closest stop line waypoint if traffic light state is
 
 <Google Object Detetcion API details to be added later ..>
 
-### Youtube Link: https://www.youtube.com/edit?o=U&video_id=3apbxri0AXw
+### Youtube Link: https://www.youtube.com/watch?v=3apbxri0AXw
 
 ### Native Installation
 
