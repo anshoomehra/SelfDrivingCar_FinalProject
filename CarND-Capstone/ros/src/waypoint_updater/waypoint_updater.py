@@ -15,7 +15,7 @@ DEBUG = False
 
 # This index search waypoints ahead and behind present
 # Also act as reference for Acceleration
-SEARCH_INDEX = 40
+SEARCH_INDEX = 20
 
 '''
 1 meter/s = 2.23694 mph
